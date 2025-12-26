@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>School Games Menu</title>
+<style>
+  :root{
+    --ink:#0b1220;
+    --link:#083a7a;
+    --linkHover:#0b6bd6;
+    --paper: rgba(255,255,255,.78);
+    --stroke: rgba(0,0,0,.25);
+    --shadow: rgba(0,0,0,.22);
+  }
+
+  html, body{
+      margin:0;
+	  width:100%;
+	  min-height:100%;
+	  overflow-y: auto;   /* ← allow vertical scrolling */
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    color: var(--ink);
+    
+    image-rendering: pixelated;
+    background:#0b1220;
+  }
+
+  /* --- Pixel-ish Starry Sunset Background (hard edges, bright, no blur) --- */
+  .bg{ position:fixed; inset:0; z-index:0; }
+
+  /* Deep sky -> sunset gradient (no blur) */
+  .sky{
+    position:absolute; inset:0;
+    background: linear-gradient(
+      #070a16 0%,
+      #0b1230 30%,
+      #2a1a4e 52%,
+      #6a2246 66%,
+      #d24b3a 78%,
+      #ffb15a 88%,
+      #ffd7a6 100%
+    );
+  }
+
+  /* Pixel stars layer (tiny square "pixels") */
+  .stars{
+    position:absolute; inset:0;
+    background:
+      /* small stars */
+      radial-gradient(circle at 10% 15%, #ffffff 0 2px, transparent 2px),
+      radial-gradient(circle at 22% 8%,  #ffffff 0 1px, transparent 1px),
+      radial-gradient(circle at 35% 22%, #ffffff 0 1px, transparent 1px),
+      radial-gradient(circle at 48% 10%, #ffffff 0 2px, transparent 2px),
+      radial-gradient(circle at 60% 18%, #ffffff 0 1px, transparent 1px),
+      radial-gradient(circle at 72% 9%,  #ffffff 0 1px, transparent 1px),
+      radial-gradient(circle at 84% 20%, #ffffff 0 2px, transparent 2px),
+      radial-gradient(circle at 92% 12%, #ffffff 0 1px, transparent 1px),
+
+      /* medium stars */
+      radial-gradient(circle at 15% 35%, #dff2ff 0 2px, transparent 2px),
+      radial-gradient(circle at 40% 38%, #dff2ff 0 2px, transparent 2px),
+      radial-gradient(circle at 66% 33%, #dff2ff 0 2px, transparent 2px),
+      radial-gradient(circle at 88% 40%, #dff2ff 0 2px, transparent 2px);
+    opacity:.9;
+    /* make them more pixel-y by scaling up the entire star layer slightly */
+    transform: scale(1.05);
+    transform-origin: center;
+  }
+
+  /* Big pixel moon/sun on the horizon */
+  .sun{
+    position:absolute;
+    left: 12%;
+    top: 62%;
+    width: 10px; height: 10px;
+    background: #ffe6a8;
+    box-shadow:
+      10px 0 #ffe6a8, 20px 0 #ffe6a8,
+      0 10px #ffe6a8, 10px 10px #fff1c9, 20px 10px #fff1c9, 30px 10px #ffe6a8,
+      0 20px #ffe6a8, 10px 20px #fff1c9, 20px 20px #fff1c9, 30px 20px #ffe6a8,
+      10px 30px #ffe6a8, 20px 30px #ffe6a8;
+    outline: 1px solid rgba(0,0,0,.12);
+  }
+
+  /* Distant mountains silhouette */
+  .mountains{
+    position:absolute; left:0; right:0;
+    top: 58%;
+    height: 22%;
+    background: #1a2447;
+    clip-path: polygon(
+      0% 80%,
+      8% 65%,
+      14% 75%,
+      22% 55%,
+      30% 74%,
+      38% 50%,
+      46% 72%,
+      56% 48%,
+      64% 70%,
+      74% 56%,
+      82% 72%,
+      92% 58%,
+      100% 76%,
+      100% 100%,
+      0% 100%
+    );
+    border-top: 2px solid rgba(255,255,255,.10);
+  }
+
+  /* Foreground hills */
+  .hills{
+    position:absolute; left:0; right:0;
+    top: 70%;
+    height: 20%;
+    background: #0e1f2e;
+    clip-path: polygon(
+      0% 35%,
+      12% 28%,
+      24% 34%,
+      38% 24%,
+      52% 34%,
+      66% 26%,
+      82% 36%,
+      100% 30%,
+      100% 100%,
+      0% 100%
+    );
+    border-top: 3px solid rgba(0,0,0,.18);
+  }
+
+  /* Ocean band at bottom */
+  .ocean{
+    position:absolute; left:0; right:0; bottom:0;
+    height: 14%;
+    background:#0e1f2e;
+   
+  }
+
+  /* Blocky reflection stripes */
+  .reflections{
+    position:absolute; left:0; right:0; bottom:0;
+    height: 14%;
+    background:
+      repeating-linear-gradient(
+        to right,
+        rgba(255,210,160,.18) 0px,
+        rgba(255,210,160,.18) 7px,
+        transparent 7px,
+        transparent 20px
+      );
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 70%);
+    opacity:.75;
+    pointer-events:none;
+  }
+
+  /* Optional subtle “scanline” pixel feel (hard, not blurry) */
+  .scanlines{
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,.10) 0px,
+      rgba(0,0,0,.10) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    opacity:.25;
+    pointer-events:none;
+  }
+
+  /* --- Minimal centered menu --- */
+  .wrap{
+  position: relative; /* ← no longer fixed */
+  z-index: 2;
+  display: grid;
+  place-items: start center;
+  padding: 48px 24px 120px; /* bottom padding so last items breathe */
+  }
+
+  .menu{
+    width: min(720px, 94vw);
+    background: var(--paper);
+    border: 2px solid var(--stroke);
+    box-shadow: 6px 6px 0 var(--shadow);
+    padding: 18px 18px 14px 18px;
+  }
+
+  h1{
+    margin:0 0 10px 0;
+    font-size: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+	
+  }
+
+  .pixelrule{
+    height: 2px;
+    background: repeating-linear-gradient(to right, rgba(0,0,0,.24) 0 6px, transparent 6px 10px);
+    margin: 10px 0 14px 0;
+    opacity:.6;
+  }
+
+  .section{
+    margin: 0 0 14px 0;
+  }
+
+  .sectionTitle{
+    margin: 0 0 6px 0;
+    font-size: 12px;
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    opacity:.9;
+	padding-top:15px;
+	padding-bottom:5px;
+		font-weight:700;
+  }
+
+  /* "Link | Description" header row */
+  .hdr{
+    display:flex;
+    gap: 10px;
+    font-size: 11px;
+    opacity:.75;
+    border-top: 1px solid rgba(0,0,0,.12);
+    padding-top: 8px;
+    margin-top: 6px;
+  }
+  .colLink{ width: 220px; flex: 0 0 auto; }
+  .colDesc{ flex: 1 1 auto; }
+
+  ul{
+    margin: 6px 0 0 0;
+    padding:0;
+    list-style:none;
+    display:grid;
+    gap: 6px;
+  }
+
+  li{
+    display:flex;
+    gap: 10px;
+    align-items: baseline;
+    border-top: 1px solid rgba(0,0,0,.10);
+    padding-top: 6px;
+  }
+  li:first-child{ border-top:none; padding-top:0; }
+
+  a{
+    color: var(--link);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 3px;
+    font-size: 12px;
+    word-break: break-all;
+	font-weight:700;
+  }
+  a:hover{ color: var(--linkHover); }
+  a:focus{
+    outline: 2px solid rgba(0,0,0,.35);
+    outline-offset: 2px;
+  }
+
+  .desc{
+    font-size: 12px;
+    opacity:.9;
+    line-height: 1.2;
+  }
+
+  .footer{
+    margin-top: 12px;
+    font-size: 11px;
+    opacity:.75;
+    border-top: 1px solid rgba(0,0,0,.12);
+    padding-top: 30px;
+    display:flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* Responsive: stack columns on narrow screens */
+  @media (max-width: 560px){
+    .colLink{ width: 100%; }
+    li{ flex-direction: column; gap: 4px; }
+    .hdr{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg" aria-hidden="true">
+    <div class="sky"></div>
+    <div class="stars"></div>
+    <div class="sun"></div>
+    <div class="mountains"></div>
+    <div class="hills"></div>
+    <div class="ocean"></div>
+ 
+    
+  </div>
+
+  <div class="wrap">
+    <main class="menu">
+      <h1>Tommies blandade pyssel</h1>
+      <div class="pixelrule"></div>
+	  <p>Här är en samling av olika små pedagogiska spel och program som jag (och AI) har gjort de senaste åren.</p>
+
+      <!-- Matte -->
+      <section class="section">
+	
+        <div class="sectionTitle">Matematik</div>
+
+        <ul>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/mathgames/">Ekvationsträning</a></div>
+            <div class="colDesc desc">Lös ekvationer genom att göra samma sak på båda sidor.</div>
+          </li>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/mathgames/slope.html">Skapa raka linjer med y=kx+m</a></div>
+            <div class="colDesc desc">Få en känsla för räta linjens ekvation.</div>
+          </li>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/mathgames/slopegame.html">Hitta Lutningen!</a></div>
+            <div class="colDesc desc">Träna på att hitta ekvationen. Du behärskar det när du uppnår en streak på 10!</div>
+          </li>
+		            <li>
+            <div class="colLink"><a href="https://wedg3.github.io/mathgames/slopeart.html">Rita med räta linjen.</a></div>
+            <div class="colDesc desc">Får du inte nog av att skapa linjer kan du färglägga med hjälp av dem. Rita något fint!</div>
+          </li>
+        </ul>
+		  <div class="pixelrule"></div>
+      </section>
+
+	        <!-- Science -->
+      <section class="section">
+	     
+        <div class="sectionTitle">NO</div>
+
+        <ul>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/gravitysim/">Fysik: Gravity sim</a></div>
+            <div class="colDesc desc">Få en känsla för hur gravitation och omloppsbanor fungerar. Försök skapa en planet med liv! Tryck H för hjälp.</div>
+          </li>
+
+        </ul>
+		  <div class="pixelrule"></div>
+      </section>
+	  
+	  	  	        <!-- SO -->
+      <section class="section">
+        <div class="sectionTitle">SO</div>
+
+        <ul>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/mapgame/">Kartspel</a></div>
+            <div class="colDesc desc">Hitta länder, städer och annat i ett kartspel. Jag kommer att lägga till fler kategorier efter hand. </div>
+          </li>
+  <div class="pixelrule"></div>
+        </ul>
+      </section>
+	  
+
+      <!-- Språk  -->
+      <section class="section">
+        <div class="sectionTitle">Språk (mest engelska)</div>
+
+        <ul>
+				            <li>
+            <div class="colLink"><a href="https://wedg3.github.io/whichone/">Which One?</a></div>
+            <div class="colDesc desc">Träna språk med en kompis i denna versionen av "Vem där?" Starta sidan på två datorer. Ställ ja/nej frågor till varandra och släck rutor.</div>
+          </li>
+		
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/wordvolcano/">Word Volcano (svåra ord)</a></div>
+            <div class="colDesc desc">Skriv de engelska orden innan de når lavan. Du vinner vid 100 poäng. Det blir svårare och svårare.</div>
+          </li>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/wordvolcano/lists.html">Word Volcano (samlingar)</a></div>
+            <div class="colDesc desc">Tyvärr kan man inte skapa egna samlingar än. Jobbar på det...</div>
+          </li>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/verbvolcano/">Verb Volcano</a></div>
+            <div class="colDesc desc">Tryck på siffran för att träna engelska oregelbundna verb!</div>
+          </li>
+  <div class="pixelrule"></div>
+        </ul>
+      </section>
+	  
+	  
+
+	  
+
+	  
+	  	  	        <!-- Blandat -->
+      <section class="section">
+        <div class="sectionTitle">Blandat</div>
+
+        <ul>
+          <li>
+            <div class="colLink"><a href="https://wedg3.github.io/flashcards/lists.html">Flashcards</a></div>
+            <div class="colDesc desc">Plugga inför prov med flashcards. Tyvärr kan man inte skapa egna ännu. Jobbar på det. Maila mig om du vill ha flashcards till ditt ämne.</div>
+          </li>
+
+        </ul>
+		  <div class="pixelrule"></div>
+      </section>
+
+      <div class="footer">
+        <span>Har du problem eller kanske förslag på spel eller program som kan vara nyttiga? Maila!</span>
+        <span>© Tommie Lindgren</span>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

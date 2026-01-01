@@ -199,6 +199,7 @@
     background: repeating-linear-gradient(to right, rgba(0,0,0,.24) 0 6px, transparent 6px 10px);
     margin: 10px 0 14px 0;
     opacity:.6;
+	display:none;
   }
 
   .section{
@@ -207,13 +208,14 @@
 
   .sectionTitle{
     margin: 0 0 6px 0;
-    font-size: 12px;
+    font-size: 14px;
     letter-spacing: .8px;
     text-transform: uppercase;
     opacity:.9;
-	padding-top:15px;
-	padding-bottom:5px;
+	padding-top:10px;
+	padding-bottom:14px;
 		font-weight:700;
+	text-align: center;
   }
 
   /* "Link | Description" header row */
@@ -241,10 +243,12 @@
     display:flex;
     gap: 10px;
     align-items: baseline;
-    border-top: 1px solid rgba(0,0,0,.10);
-    padding-top: 6px;
+    
+	border-bottom: 1px solid rgba(0,0,0,.10);
+	padding-bottom: 10px;
+    padding-top: 0px;
   }
-  li:first-child{ border-top:none; padding-top:0; }
+  li:first-child{  padding-top:0; }
 
   a{
     color: var(--link);
@@ -271,7 +275,7 @@
     margin-top: 12px;
     font-size: 11px;
     opacity:.75;
-    border-top: 1px solid rgba(0,0,0,.12);
+    
     padding-top: 30px;
     display:flex;
     justify-content: space-between;
@@ -386,8 +390,6 @@
   <div class="pixelrule"></div>
         </ul>
       </section>
-
-
 		      <!-- Idrott  -->
       <section class="section">
         <div class="sectionTitle">Idrott & Hälsa</div>
@@ -395,7 +397,7 @@
         <ul>
 		<li>
             <div class="colLink"><a href="https://wedg3.github.io/stormtag/">Storm Tag</a></div>
-            <div class="colDesc desc">Träna orientering med elevera i denna "taga"-lek. Elever som spelat fortnite känner igen sig.</div>
+            <div class="colDesc desc">Träna orientering med elevera i denna "taga"-lek. Kräver mobil. Elever som spelat fortnite kommer att känner igen sig.</div>
           </li>
 		
 
@@ -415,7 +417,7 @@
           </li>
 
         </ul>
-		  <div class="pixelrule"></div>
+		  
       </section>
 
       <div class="footer">

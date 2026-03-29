@@ -1,459 +1,1137 @@
 <!doctype html>
-<html lang="en">
+<html lang="sv">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>School Games Menu</title>
+<title>Prickar – radial prototyp</title>
 <style>
   :root{
-    --ink:#0b1220;
-    --link:#083a7a;
-    --linkHover:#0b6bd6;
-    --paper: rgba(255,255,255,.78);
-    --stroke: rgba(0,0,0,.25);
-    --shadow: rgba(0,0,0,.22);
+    --bg0:#020608;
+    --bg1:#03111a;
+    --bg2:#071b26;
+    --bg3:#132512;
+
+    --ink:#eefbff;
+    --muted:rgba(220,245,245,.76);
+
+    --line:rgba(170,235,220,.16);
+    --lineNew:rgba(255,220,120,.95);
+    --glass:rgba(255,255,255,.05);
+    --shadow:rgba(0,0,0,.52);
+
+    --root:#8fe8d9;
+
+    --matte:#49d8ff;
+    --no:#58dd83;
+    --so:#ff0000;
+    --sprak:#80e6d9;
+    --idh:#d6e86b;
+    --blandat:#c8f47c;
+
+    --subcategory:#7fdccf;
+    --game:#dce89c;
+    --gameText:#f7fffd;
+
+    --new:#ffd768;
+
+    --ring-soft:rgba(255,255,255,.08);
+    --ring-strong:rgba(255,255,255,.22);
   }
 
-  html, body{
-      margin:0;
-	  width:100%;
-	  min-height:100%;
-	  overflow-y: auto;   /* ← allow vertical scrolling */
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    color: var(--ink);
-    
-    image-rendering: pixelated;
-    background:#0b1220;
-  }
+  *{ box-sizing:border-box; }
+  html,body{ height:100%; margin:0; }
 
-  /* --- Pixel-ish Starry Sunset Background (hard edges, bright, no blur) --- */
-  .bg{ position:fixed; inset:0; z-index:0; }
-
-  /* Deep sky -> sunset gradient (no blur) */
-  .sky{
-    position:absolute; inset:0;
-    background: linear-gradient(
-      #070a16 0%,
-      #0b1230 30%,
-      #2a1a4e 52%,
-      #6a2246 66%,
-      #d24b3a 78%,
-      #ffb15a 88%,
-      #ffd7a6 100%
-    );
-  }
-
-  /* Pixel stars layer (tiny square "pixels") */
-  .stars{
-    position:absolute; inset:0;
+  body{
+    overflow:hidden;
+        font-family: "Gill Sans", "Trebuchet MS", Arial, sans-serif;
+    color:var(--ink);
     background:
-      /* small stars */
-      radial-gradient(circle at 10% 15%, #ffffff 0 2px, transparent 2px),
-      radial-gradient(circle at 22% 8%,  #ffffff 0 1px, transparent 1px),
-      radial-gradient(circle at 35% 22%, #ffffff 0 1px, transparent 1px),
-      radial-gradient(circle at 48% 10%, #ffffff 0 2px, transparent 2px),
-      radial-gradient(circle at 60% 18%, #ffffff 0 1px, transparent 1px),
-      radial-gradient(circle at 72% 9%,  #ffffff 0 1px, transparent 1px),
-      radial-gradient(circle at 84% 20%, #ffffff 0 2px, transparent 2px),
-      radial-gradient(circle at 92% 12%, #ffffff 0 1px, transparent 1px),
-
-      /* medium stars */
-      radial-gradient(circle at 15% 35%, #dff2ff 0 2px, transparent 2px),
-      radial-gradient(circle at 40% 38%, #dff2ff 0 2px, transparent 2px),
-      radial-gradient(circle at 66% 33%, #dff2ff 0 2px, transparent 2px),
-      radial-gradient(circle at 88% 40%, #dff2ff 0 2px, transparent 2px);
-    opacity:.9;
-    /* make them more pixel-y by scaling up the entire star layer slightly */
-    transform: scale(1.05);
-    transform-origin: center;
+      radial-gradient(circle at 8% 54%, rgba(24,146,214,.18) 0 10%, transparent 26%),
+      radial-gradient(circle at 44% 62%, rgba(82,225,210,.08) 0 10%, transparent 30%),
+      radial-gradient(circle at 61% 40%, rgba(70,210,120,.06) 0 8%, transparent 22%),
+      radial-gradient(circle at 76% 88%, rgba(218,235,120,.07) 0 10%, transparent 20%),
+      radial-gradient(circle at 92% 54%, rgba(247,205,89,.14) 0 11%, transparent 23%),
+      linear-gradient(180deg, #010304 0%, #02080b 18%, #031119 46%, #02080c 100%);
+	  
   }
 
-  /* Big pixel moon/sun on the horizon */
-  .sun{
+  .bokehWrap{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+  }
+
+  .bokehLayer{
     position:absolute;
-    left: 12%;
-    top: 62%;
-    width: 10px; height: 10px;
-    background: #ffe6a8;
+    inset:-10vmax;
+    pointer-events:none;
+    will-change:transform;
+    transition:transform 900ms cubic-bezier(.22,.8,.2,1);
+  }
+
+  .bokeh{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    mix-blend-mode:screen;
+  }
+
+  .bokeh::before,
+  .bokeh::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+  }
+
+.bokeh-far{
+  background:
+    radial-gradient(circle at 16% 54%, rgba(35,143,255,.16) 0 34px, transparent 36px),
+    radial-gradient(circle at 36% 66%, rgba(70,220,220,.13) 0 55px, transparent 57px),
+    radial-gradient(circle at 58% 36%, rgba(94,218,123,.13) 0 44px, transparent 46px),
+    radial-gradient(circle at 78% 58%, rgba(220,240,130,.13) 0 48px, transparent 50px),
+    radial-gradient(circle at 92% 56%, rgba(255,212,110,.16) 0 42px, transparent 44px),
+    radial-gradient(circle at 10% 30%, rgba(55,180,255,.13) 0 30px, transparent 32px),
+    radial-gradient(circle at 26% 78%, rgba(85,230,240,.11) 0 40px, transparent 42px),
+    radial-gradient(circle at 48% 18%, rgba(100,225,130,.11) 0 36px, transparent 38px),
+    radial-gradient(circle at 68% 72%, rgba(215,238,120,.11) 0 38px, transparent 40px),
+    radial-gradient(circle at 86% 24%, rgba(255,220,120,.13) 0 34px, transparent 36px);
+  filter: blur(15px);
+  opacity:.50;
+  animation: driftFar 34s linear infinite;
+}
+
+.bokeh-far::before{
+  background:
+    radial-gradient(circle at 28% 24%, rgba(45,205,255,.10) 0 21px, transparent 23px),
+    radial-gradient(circle at 66% 78%, rgba(88,225,130,.09) 0 30px, transparent 32px),
+    radial-gradient(circle at 18% 70%, rgba(70,210,255,.08) 0 24px, transparent 26px),
+    radial-gradient(circle at 84% 34%, rgba(120,235,150,.08) 0 26px, transparent 28px);
+  filter: blur(1px);
+  opacity:.9;
+}
+
+.bokeh-mid{
+  background:
+    radial-gradient(circle at 20% 52%, rgba(42,179,255,.22) 0 70px, transparent 74px),
+    radial-gradient(circle at 36% 80%, rgba(86,255,240,.06) 0 75px, transparent 79px),
+    radial-gradient(circle at 70% 24%, rgba(78,220,112,.18) 0 59px, transparent 63px),
+    radial-gradient(circle at 80% 58%, rgba(234,255,150,.18) 0 61px, transparent 65px),
+    radial-gradient(circle at 96% 54%, rgba(255,220,110,.22) 0 69px, transparent 73px),
+    radial-gradient(circle at 12% 18%, rgba(55,190,255,.16) 0 58px, transparent 62px),
+    radial-gradient(circle at 30% 30%, rgba(95,245,230,.08) 0 64px, transparent 68px),
+    radial-gradient(circle at 54% 70%, rgba(82,230,120,.15) 0 56px, transparent 60px),
+    radial-gradient(circle at 72% 82%, rgba(220,250,145,.15) 0 60px, transparent 64px),
+    radial-gradient(circle at 88% 18%, rgba(255,210,100,.18) 0 66px, transparent 70px);
+  filter: blur(10px);
+  opacity:.72;
+  animation: driftMid 28s linear infinite;
+}
+
+.bokeh-mid::before{
+  background:
+    radial-gradient(circle at 42% 18%, rgba(70,200,255,.12) 0 20px, transparent 22px),
+    radial-gradient(circle at 74% 34%, rgba(155,230,90,.11) 0 24px, transparent 26px),
+    radial-gradient(circle at 88% 78%, rgba(255,202,85,.10) 0 21px, transparent 23px),
+    radial-gradient(circle at 16% 68%, rgba(80,210,255,.10) 0 22px, transparent 24px),
+    radial-gradient(circle at 58% 84%, rgba(255,225,120,.09) 0 20px, transparent 22px),
+    radial-gradient(circle at 64% 12%, rgba(120,245,180,.09) 0 23px, transparent 25px);
+  filter: blur(5px);
+  opacity:.9;
+}
+
+.bokeh-near{
+  background:
+    radial-gradient(circle at 14% 16%, rgba(55,175,255,.20) 0 105px, transparent 110px),
+    radial-gradient(circle at 40% 34%, rgba(82,255,230,.16) 0 94px, transparent 99px),
+    radial-gradient(circle at 20% 42%, rgba(70,230,112,.16) 0 88px, transparent 93px),
+    radial-gradient(circle at 70% 38%, rgba(245,255,166,.17) 0 87px, transparent 92px),
+    radial-gradient(circle at 96% 54%, rgba(255,211,96,.20) 0 98px, transparent 103px),
+    radial-gradient(circle at 8% 70%, rgba(60,180,255,.16) 0 90px, transparent 95px),
+    radial-gradient(circle at 30% 72%, rgba(100,255,220,.13) 0 82px, transparent 87px),
+    radial-gradient(circle at 56% 18%, rgba(88,235,125,.13) 0 80px, transparent 85px),
+    radial-gradient(circle at 78% 72%, rgba(240,245,150,.14) 0 86px, transparent 91px),
+    radial-gradient(circle at 88% 20%, rgba(255,220,110,.16) 0 92px, transparent 97px);
+  filter: blur(3px);
+  opacity:.34;
+  animation: driftNear 40s linear infinite;
+}
+
+.bokeh-near::before{
+  background:
+    radial-gradient(circle at 10% 86%, rgba(43,170,255,.10) 0 37px, transparent 39px),
+    radial-gradient(circle at 52% 24%, rgba(118,255,218,.08) 0 41px, transparent 43px),
+    radial-gradient(circle at 90% 18%, rgba(255,221,113,.10) 0 32px, transparent 34px),
+    radial-gradient(circle at 26% 58%, rgba(70,190,255,.08) 0 36px, transparent 38px),
+    radial-gradient(circle at 68% 84%, rgba(130,255,210,.07) 0 40px, transparent 42px),
+    radial-gradient(circle at 82% 64%, rgba(255,228,120,.08) 0 34px, transparent 36px);
+  filter: blur(0px);
+  opacity:.92;
+}
+
+  @keyframes driftFar {
+    from{ transform:translate3d(0,0,0); }
+    50%{ transform:translate3d(1.2vmax,-0.9vmax,0); }
+    to{ transform:translate3d(0,0,0); }
+  }
+
+  @keyframes driftMid {
+    from{ transform:translate3d(0,0,0); }
+    50%{ transform:translate3d(2.2vmax,-1.4vmax,0); }
+    to{ transform:translate3d(0,0,0); }
+  }
+
+  @keyframes driftNear {
+    from{ transform:translate3d(0,0,0); }
+    50%{ transform:translate3d(3.2vmax,1.8vmax,0); }
+    to{ transform:translate3d(0,0,0); }
+  }
+
+  .topbar{
+    position:fixed;
+    top:16px;
+    left:16px;
+    right:16px;
+    z-index:40;
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    pointer-events:none;
+  }
+
+  .brand,
+  .info{
+    pointer-events:auto;
+    backdrop-filter: blur(14px);
+    background:rgba(6,18,20,.28);
+    border:1px solid rgba(170,255,230,.10);
+    box-shadow:0 12px 36px rgba(0,0,0,.42);
+    border-radius:18px;
+    padding:12px 14px;
+  }
+
+  .brand h1{
+    margin:0;
+    font-size:18px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+	   font-family: "Gill Sans", "Trebuchet MS", Arial, sans-serif;
+  }
+
+  .brand p,
+  .info p{
+    margin:4px 0 0 0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.35;
+  }
+
+  .info{ max-width:340px; }
+
+  #stage{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+  }
+
+  #camera{
+    position:absolute;
+    inset:0;
+    transform:translate3d(0,0,0);
+    transition:transform 700ms cubic-bezier(.22,.8,.2,1);
+    will-change:transform;
+  }
+
+  .node{
+    position:absolute;
+    left:0;
+    top:0;
+    transform:translate(-50%,-50%) scale(1);
+    border-radius:999px;
+    display:grid;
+    place-items:center;
+    text-align:center;
+    cursor:pointer;
+    user-select:none;
+    border:1px solid var(--ring-soft);
     box-shadow:
-      10px 0 #ffe6a8, 20px 0 #ffe6a8,
-      0 10px #ffe6a8, 10px 10px #fff1c9, 20px 10px #fff1c9, 30px 10px #ffe6a8,
-      0 20px #ffe6a8, 10px 20px #fff1c9, 20px 20px #fff1c9, 30px 20px #ffe6a8,
-      10px 30px #ffe6a8, 20px 30px #ffe6a8;
-    outline: 1px solid rgba(0,0,0,.12);
+      0 0 0 1px rgba(255,255,255,.06) inset,
+      0 0 18px rgba(255,255,255,.07),
+      0 0 28px rgba(120,255,220,.05),
+      0 18px 34px rgba(0,0,0,.26);
+    transition:
+      transform .28s ease,
+      opacity .28s ease,
+      box-shadow .28s ease,
+      border-color .28s ease,
+      background .28s ease,
+      filter .28s ease;
+    opacity:0;
+    will-change:transform;
+    overflow:hidden;
+    backdrop-filter: blur(9px);
+	  text-decoration:none;
+    font-family: "Gill Sans", "Trebuchet MS", Arial, sans-serif;
+	  text-transform:uppercase;
+	
   }
 
-  /* Distant mountains silhouette */
-  .mountains{
-    position:absolute; left:0; right:0;
-    top: 58%;
-    height: 22%;
-    background: #1a2447;
-    clip-path: polygon(
-      0% 80%,
-      8% 65%,
-      14% 75%,
-      22% 55%,
-      30% 74%,
-      38% 50%,
-      46% 72%,
-      56% 48%,
-      64% 70%,
-      74% 56%,
-      82% 72%,
-      92% 58%,
-      100% 76%,
-      100% 100%,
-      0% 100%
-    );
-    border-top: 2px solid rgba(255,255,255,.10);
+  .node.show{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
   }
 
-  /* Foreground hills */
-  .hills{
-    position:absolute; left:0; right:0;
-    top: 70%;
-    height: 20%;
-    background: #0e1f2e;
-    clip-path: polygon(
-      0% 35%,
-      12% 28%,
-      24% 34%,
-      38% 24%,
-      52% 34%,
-      66% 26%,
-      82% 36%,
-      100% 30%,
-      100% 100%,
-      0% 100%
-    );
-    border-top: 3px solid rgba(0,0,0,.18);
+  .node:hover{
+    transform:translate(-50%,-50%) scale(1.15);
+    border-color:var(--ring-strong);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,.10) inset,
+      0 0 26px rgba(255,255,255,.12),
+      0 0 44px rgba(125,255,225,.10),
+      0 18px 36px rgba(0,0,0,.32);
   }
 
-  /* Ocean band at bottom */
-  .ocean{
-    position:absolute; left:0; right:0; bottom:0;
-    height: 14%;
-    background:#0e1f2e;
+.node.is-highlighted{
+  border-color:rgba(255,231,150,.82);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.10) inset,
+    0 0 22px rgba(255,212,110,.22),
+    0 0 48px rgba(255,208,88,.16),
+    0 18px 34px rgba(0,0,0,.26);
+}
+
+  .node .inner{
+    padding:1px;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+	
+  }
+
+  .node .title,
+  .node .subtitle{
+    width:100%;
+    text-align:center;
+  }
+
+  .node .title{
+    
+    line-height:1.06;
+    letter-spacing:.01em;
+    overflow-wrap:break-word;
+    text-wrap:balance;
+    color:rgba(245,255,252,.96);
+
+  }
+
+  .node .subtitle{
+    margin-top:4px;
+    font-size:10px;
+    line-height:1.2;
+    opacity:.78;
+    overflow-wrap:break-word;
+    text-wrap:balance;
+    color:rgba(230,250,245,.78);
+	
+  }
+
+  .badge-new{
+    position:absolute;
+    top:10px;
+    right:8px;
+    z-index:2;
+    background:linear-gradient(180deg, #ffe89e, #ffcb51);
+    color:#382700;
+    font-size:8px;
+    font-weight:600;
+    letter-spacing:.05em;
+    padding:4px 7px;
+    border-radius:3px;
+    text-transform:uppercase;
+    box-shadow:
+      0 0 12px rgba(255,212,98,.25),
+      0 8px 18px rgba(0,0,0,.28);
+  }
+
+  .root{
+    width:150px;
+    height:150px;
+        background:
+
+      radial-gradient(circle at 50% 52%, rgba(168,240,226,.06), rgba(68,128,114,.02) 62%, rgba(10,30,28,.08) 100%);
+    color:#f3fffd;
+    z-index:35;
+  }
+
+  .root .title{ font-size:10px; font-family: "Gill Sans", "Trebuchet MS", Arial, sans-serif; letter-spacing:3px;}
+  .root .subtitle{ font-size:12px; opacity:.78; }
+
+  .category{
+    width:118px;
+    height:118px;
+    color:#f6fffd;
+    z-index:24;
+  }
+
+  .category .title{ font-size:14px; letter-spacing:1.5px;}
+  .category .subtitle{ font-size:11px; }
+
+  .subcategory{
+    width:108px;
+    height:108px;
+    color:#f7fffd;
+    background:
+
+      radial-gradient(circle at 50% 52%, rgba(168,240,226,.16), rgba(68,128,114,.12) 62%, rgba(10,30,28,.08) 100%);
+    z-index:18;
+	  
+  }
+
+  .subcategory .title{ font-size:12px; letter-spacing:2px; }
+  .subcategory .subtitle{ font-size:10px; }
+
+  .game{
+    width:100px;
+    height:100px;
+    color:var(--gameText);
+    background:
+    
+      radial-gradient(circle at 50% 52%, rgba(238,246,172,.16), rgba(130,146,70,.12) 62%, rgba(22,28,14,.08) 100%);
+    z-index:12;
+		border-color:rgba(150,246,172,.36);
+		border-width:2px;
+		
+
+  }
+   .game:hover{
+
+	border-color:#cacf3c;
+  }
+  
+
+  .game .title{ font-size:10px; 	letter-spacing:2px;}
+
+  .category[data-color="matte"],
+  .subcategory[data-color="matte"],
+  .game[data-color="matte"]{
+    background:rgba(70,216,255,.1);
+  }
+
+  .category[data-color="no"],
+  .subcategory[data-color="no"],
+  .game[data-color="no"]{
+    background:rgba(88,221,131,.1);
    
   }
 
-  /* Blocky reflection stripes */
-  .reflections{
-    position:absolute; left:0; right:0; bottom:0;
-    height: 14%;
-    background:
-      repeating-linear-gradient(
-        to right,
-        rgba(255,210,160,.18) 0px,
-        rgba(255,210,160,.18) 7px,
-        transparent 7px,
-        transparent 20px
-      );
-    mask-image: linear-gradient(to bottom, rgba(0,0,0,.8), transparent 70%);
-    opacity:.75;
+  .category[data-color="so"],
+  .subcategory[data-color="so"],
+  .game[data-color="so"]{
+    background:rgba(160,116,26,.10);
+  }
+
+  .category[data-color="sprak"],
+  .subcategory[data-color="sprak"],
+  .game[data-color="sprak"]{
+    background:rgba(230,150,190,.08);
+
+  }
+
+  .category[data-color="idh"],
+  .subcategory[data-color="idh"],
+  .game[data-color="idh"]{
+    background:rgba(214,232,107,.1);
+
+  }
+
+  .category[data-color="blandat"],
+  .subcategory[data-color="blandat"],
+  .game[data-color="blandat"]{
+      background:rgba(200,244,124,.10);  
+  }
+
+  svg.lines{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    overflow:visible;
     pointer-events:none;
   }
 
-  /* Optional subtle “scanline” pixel feel (hard, not blurry) */
-  .scanlines{
-    position:absolute; inset:0;
-    background: repeating-linear-gradient(
-      to bottom,
-      rgba(0,0,0,.10) 0px,
-      rgba(0,0,0,.10) 1px,
-      transparent 1px,
-      transparent 4px
-    );
-    opacity:.25;
-    pointer-events:none;
+  .lines line{
+    stroke:rgba(170,240,220,.18);
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-dasharray:2 8;
+    opacity:.72;
+    filter:drop-shadow(0 0 5px rgba(120,255,230,.10));
   }
 
-  /* --- Minimal centered menu --- */
-  .wrap{
-  position: relative; /* ← no longer fixed */
-  z-index: 2;
-  display: grid;
-  place-items: start center;
-  padding: 48px 24px 120px; /* bottom padding so last items breathe */
-  }
+.lines line.is-highlighted{
+  stroke:rgba(255,223,120,.9);
+  stroke-width:2.8;
+  opacity:.95;
+  filter:drop-shadow(0 0 7px rgba(255,214,98,.28));
+}
 
-  .menu{
-    width: min(720px, 94vw);
-    background: var(--paper);
-    border: 2px solid var(--stroke);
-    box-shadow: 6px 6px 0 var(--shadow);
-    padding: 18px 18px 14px 18px;
-  }
+.descriptionBar{
+  position:fixed;
+  top:50%;
+  z-index:45;
+  width:min(280px, calc(100vw - 24px));
+  min-height:0;
+  border-radius:4px;
+  padding:12px 14px;
+  background:rgba(8,18,20,.34);
+  border:1px solid rgba(180,245,224,.12);
+  backdrop-filter: blur(16px);
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.35;
+  box-shadow:0 10px 28px rgba(0,0,0,.28);
 
-  h1{
-    margin:0 0 10px 0;
-    font-size: 16px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-	
-  }
+  opacity:0;
+  pointer-events:none;
 
-  .pixelrule{
-    height: 2px;
-    background: repeating-linear-gradient(to right, rgba(0,0,0,.24) 0 6px, transparent 6px 10px);
-    margin: 10px 0 14px 0;
-    opacity:.6;
-	display:none;
-  }
+  transition:
+    left .45s cubic-bezier(.22,.8,.2,1),
+    right .45s cubic-bezier(.22,.8,.2,1),
+    opacity .18s ease;
+}
 
-  .section{
-    margin: 0 0 14px 0;
-  }
+.descriptionBar.is-visible{
+  opacity:1;
+}
 
-  .sectionTitle{
-    margin: 0 0 6px 0;
-    font-size: 14px;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-    opacity:.9;
-	padding-top:10px;
-	padding-bottom:14px;
-		font-weight:700;
-	text-align: center;
-  }
+.descriptionBar.is-left{
+  left:16px;
+  right:auto;
+  transform:translateY(-50%);
+}
 
-  /* "Link | Description" header row */
-  .hdr{
-    display:flex;
-    gap: 10px;
-    font-size: 11px;
-    opacity:.75;
-    border-top: 1px solid rgba(0,0,0,.12);
-    padding-top: 8px;
-    margin-top: 6px;
-  }
-  .colLink{ width: 220px; flex: 0 0 auto; }
-  .colDesc{ flex: 1 1 auto; }
+.descriptionBar.is-right{
+  right:16px;
+  left:auto;
+  transform:translateY(-50%);
+}
 
-  ul{
-    margin: 6px 0 0 0;
-    padding:0;
-    list-style:none;
-    display:grid;
-    gap: 6px;
-  }
+.descriptionBar strong{ color:var(--ink); }
+.descriptionBar .placeholder{ opacity:.75; }
 
-  li{
-    display:flex;
-    gap: 10px;
-    align-items: baseline;
-    
-	border-bottom: 1px solid rgba(0,0,0,.10);
-	padding-bottom: 10px;
-    padding-top: 0px;
-  }
-  li:first-child{  padding-top:0; }
+.descriptionTitle{
+  color:var(--ink);
+  font-size:15px;
+  font-weight:800;
+  line-height:1.15;
+  margin:0 0 10px 0;
+  padding-bottom:6px;
+  border-bottom:1px solid rgba(180,245,224,.12);
+}
 
-  a{
-    color: var(--link);
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
-    font-size: 12px;
-    word-break: break-all;
-	font-weight:700;
-  }
-  a:hover{ color: var(--linkHover); }
-  a:focus{
-    outline: 2px solid rgba(0,0,0,.35);
-    outline-offset: 2px;
-  }
+.descriptionText{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.35;
+}
 
-  .desc{
-    font-size: 12px;
-    opacity:.9;
-    line-height: 1.2;
+@media (max-width: 760px){
+  .descriptionBar{
+    left:12px !important;
+    right:12px !important;
+    top:auto;
+    bottom:16px;
+    width:auto;
+    font-size:13px;
+    transform:none !important;
   }
+}
 
-  .footer{
-    margin-top: 12px;
-    font-size: 11px;
-    opacity:.75;
-    
-    padding-top: 30px;
-    display:flex;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
 
-  /* Responsive: stack columns on narrow screens */
-  @media (max-width: 560px){
-    .colLink{ width: 100%; }
-    li{ flex-direction: column; gap: 4px; }
-    .hdr{ display:none; }
+
+  @media (max-width: 760px){
+    .brand p, .info p { font-size:12px; }
+    .brand h1{ font-size:16px; }
+    .info{ max-width:230px; }
+
+    .root{ width:136px; height:136px; }
+    .root .title{ font-size:22px; }
+
+    .category{ width:102px; height:102px; }
+    .category .title{ font-size:14px; }
+
+    .subcategory{ width:92px; height:92px; }
+    .subcategory .title{ font-size:12px; }
+
+    .game{ width:84px; height:84px; }
+    .game .title{ font-size:11px; }
+
+    .badge-new{
+      font-size:8px;
+      padding:3px 6px;
+      top:8px;
+      right:6px;
+    }
+
+    .descriptionBar{
+      font-size:13px;
+      min-height:52px;
+    }
   }
+  
+  
+  .lineBadges{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:visible;
+}
+
+.line-badge-new{
+  position:absolute;
+  left:0;
+  top:0;
+  transform:translate(-50%, -50%);
+  z-index:30;
+  background:linear-gradient(180deg, #ffe89e, #ffcb51);
+  color:#382700;
+  font-size:9px;
+  font-weight:500;
+  letter-spacing:.05em;
+  padding:1px 3px;
+  border-radius:0px;
+  text-transform:uppercase;
+  white-space:nowrap;
+  box-shadow:
+    0 0 12px rgba(255,212,98,.25),
+    0 8px 18px rgba(0,0,0,.28);
+  border:1px solid rgba(255,245,200,.65);
+}
+
+@media (max-width: 760px){
+  .line-badge-new{
+    font-size:9px;
+    padding:3px 6px;
+  }
+}
 </style>
 </head>
 <body>
-
-  <div class="bg" aria-hidden="true">
-    <div class="sky"></div>
-    <div class="stars"></div>
-    <div class="sun"></div>
-    <div class="mountains"></div>
-    <div class="hills"></div>
-    <div class="ocean"></div>
- 
-    
+  <div class="bokehWrap" aria-hidden="true">
+    <div class="bokehLayer bokehLayer-far"><div class="bokeh bokeh-far"></div></div>
+    <div class="bokehLayer bokehLayer-mid"><div class="bokeh bokeh-mid"></div></div>
+    <div class="bokehLayer bokehLayer-near"><div class="bokeh bokeh-near"></div></div>
   </div>
 
-  <div class="wrap">
-    <main class="menu">
-      <h1>Tommies blandade pyssel</h1>
-      <div class="pixelrule"></div>
-	  <p>Här är en samling av olika små pedagogiska spel och program som jag (och AI) har gjort de senaste åren.</p>
 
-      <!-- Matte -->
-      <section class="section">
-	
-        <div class="sectionTitle">Matematik</div>
+  <main id="stage" aria-label="Radial meny">
+<div id="camera">
+  <svg class="lines" id="lines" aria-hidden="true"></svg>
+  <div id="lineBadges" class="lineBadges" aria-hidden="true"></div>
+</div>
+  </main>
 
-        <ul>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mathgames/">Ekvationsträning</a></div>
-            <div class="colDesc desc">Lös ekvationer genom att göra samma sak på båda sidor.</div>
-          </li>
+  <div class="descriptionBar is-left" id="descriptionBar"></div>
 
-			          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mathgames/position1.html">Positionssystemet #1</a></div>
-            <div class="colDesc desc">Träna på att multiplicera och dividera med 10^x</div>
-          </li>
+  <script src="menu-data.js"></script>
+  <script>
+  const data = window.PrickarMenuData;
+  const stage = document.getElementById('stage');
+  const camera = document.getElementById('camera');
+  const lines = document.getElementById('lines');
+  const lineBadges = document.getElementById('lineBadges');
+  const bokehLayers = {
+    far: document.querySelector('.bokehLayer-far'),
+    mid: document.querySelector('.bokehLayer-mid'),
+    near: document.querySelector('.bokehLayer-near')
+  };
+  const descriptionBar = document.getElementById('descriptionBar');
+  descriptionBar.classList.add('is-left');
+  
 
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mathgames/">Ekvationsträning</a></div>
-            <div class="colDesc desc">Lös ekvationer genom att göra samma sak på båda sidor.</div>
-          </li>
-			
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mathgames/slope.html">Skapa raka linjer med y=kx+m</a></div>
-            <div class="colDesc desc">Få en känsla för räta linjens ekvation.</div>
-          </li>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mathgames/slopegame.html">Hitta Lutningen!</a></div>
-            <div class="colDesc desc">Träna på att hitta ekvationen. Du behärskar det när du uppnår en streak på 10!</div>
-          </li>
-		            <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mathgames/slopeart.html">Rita med räta linjen.</a></div>
-            <div class="colDesc desc">Får du inte nog av att skapa linjer kan du färglägga med hjälp av dem. Rita något fint!</div>
-          </li>
-        </ul>
-		  <div class="pixelrule"></div>
-      </section>
+  const plopSounds = [
+    new Audio('plop1.mp3'),
+    new Audio('plop2.mp3'),
+    new Audio('plop3.mp3')
+  ];
 
-	        <!-- Science -->
-      <section class="section">
-	     
-        <div class="sectionTitle">NO</div>
+  plopSounds.forEach(sound => {
+    sound.preload = 'auto';
+  });
 
-        <ul>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/gravitysim/">Fysik: Gravity sim</a></div>
-            <div class="colDesc desc">Få en känsla för hur gravitation och omloppsbanor fungerar. Försök att skapa en planet med liv! Tryck H för hjälp.</div>
-          </li>
+  function playPlop(){
+    try {
+      const sound = plopSounds[Math.floor(Math.random() * plopSounds.length)];
+      sound.currentTime = 0;
+      sound.play();
+    } catch(err) {}
+  }
 
-			          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/larvlabb/">Biologi: Larv-labb</a></div>
-            <div class="colDesc desc">Ett spel när man får poäng för att skapa biologisk mångfald med larver. Det går också utmärkt att bedriva experiment och testa hypoteser i detta virtuella laboratorium.</div>
-          </li>
 
-        </ul>
-		  <div class="pixelrule"></div>
-      </section>
-	  
-	  	  	        <!-- SO -->
-      <section class="section">
-        <div class="sectionTitle">SO</div>
 
-        <ul>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/mapgame/">Kartspel</a></div>
-            <div class="colDesc desc">Hitta länder, städer och annat i ett kartspel. Jag kommer att lägga till fler kategorier efter hand. </div>
-          </li>
-  <div class="pixelrule"></div>
-        </ul>
-      </section>
-	  
+  let rootNode;
+  let categoryNodes = [];
+  let subcategoryNodes = [];
+  let gameNodes = [];
+  let activeCategory = null;
+  let activeSubcategory = null;
+  let focusPoint = null;
 
-      <!-- Språk  -->
-      <section class="section">
-        <div class="sectionTitle">Språk (mest engelska)</div>
+  function stageCenter(){ return { x: window.innerWidth / 2, y: window.innerHeight / 2 + 8 }; }
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function polar(cx, cy, radius, angleDeg){ const a = angleDeg * Math.PI / 180; return { x: cx + Math.cos(a) * radius, y: cy + Math.sin(a) * radius }; }
+  function categoryRadius(){ return clamp(Math.min(window.innerWidth, window.innerHeight) * 0.28, 145, 255); }
+function subcategoryRadius(){ return clamp(Math.min(window.innerWidth, window.innerHeight) * 0.23, 135, 240); }
+  function gameRadius(){ return clamp(Math.min(window.innerWidth, window.innerHeight) * 0.25, 150, 245); }
 
-        <ul>
-				            <li>
-            <div class="colLink"><a href="https://wedg3.github.io/whichone/">Which One?</a></div>
-            <div class="colDesc desc">Träna språk med en kompis i denna versionen av "Vem där?" Starta sidan på två datorer. Ställ ja/nej frågor till varandra och släck rutor.</div>
-          </li>
-		         <li>
-            <div class="colLink"><a href="https://wedg3.github.io/verbvolcano/">Verb Volcano</a></div>
-            <div class="colDesc desc">Tryck på siffran för att träna engelska oregelbundna verb!</div>
-          </li>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/wordvolcano/">Word Volcano (svåra ord)</a></div>
-            <div class="colDesc desc">Skriv de engelska orden innan de når lavan. Du vinner vid 100 poäng. Det blir svårare och svårare.</div>
-          </li>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/wordvolcano/lists.html">Word Volcano (samlingar)</a></div>
-            <div class="colDesc desc">Tyvärr kan man inte skapa egna samlingar än. Jobbar på det...</div>
-          </li>
- 
-  <div class="pixelrule"></div>
-        </ul>
-      </section>
-		      <!-- Idrott  -->
-      <section class="section">
-        <div class="sectionTitle">Idrott & Hälsa</div>
+  function spreadAngles(count, start = -90, spread = 360){
+    if(count <= 1) return [start];
+    if(spread >= 360) return Array.from({ length: count }, (_, i) => start + i * (360 / count));
+    return Array.from({ length: count }, (_, i) => start - spread / 2 + i * (spread / (count - 1)));
+  }
 
-        <ul>
-		
-				<li>
-            <div class="colLink"><a href="https://wedg3.github.io/argames/stormsurvivalinfo.html">Storm Survival</a></div>
-            <div class="colDesc desc">Träna orientering med denna överlevnadslek. Spela i stan eller skogen. Kräver mobil. Elever som spelat fortnite kommer att känna igen sig.</div>
-          </li>
-		
-				<li>
-            <div class="colLink"><a href="https://wedg3.github.io/argames/stormseekinfo.html">Storm Seek</a></div>
-            <div class="colDesc desc">Kurragömma möter orientering. Samma som Storm Survival fast med kurragömma. Kräver mobil.</div>
-          </li>
-		
-		
-		<li>
-            <div class="colLink"><a href="https://wedg3.github.io/argames/stormtaginfo.html">Storm Tag</a></div>
-            <div class="colDesc desc">Kull (eller 'Taga') möter orientering. Samma som Storm Survival fast med kull (lite mer action). Spelas helst i skogen p.g.a trafikfara? Kräver mobil. </div>
-          </li>
-		
+  function animateCameraToward(point){
+  if(!camera || !point) return;
 
-  <div class="pixelrule"></div>
-        </ul>
-      </section>
-	  
-	  	  
-	  	  	        <!-- Blandat -->
-      <section class="section">
-        <div class="sectionTitle">Blandat</div>
+  const dx = Math.round(window.innerWidth / 2 - point.x);
+  const dy = Math.round(window.innerHeight / 2 - point.y);
 
-        <ul>
-          <li>
-            <div class="colLink"><a href="https://wedg3.github.io/flashcards/lists.html">Blandade Flashcards</a></div>
-            <div class="colDesc desc">Plugga inför prov med flashcards. Tyvärr kan man inte skapa egna ännu. Jobbar på det. Maila mig om du vill ha flashcards till ditt ämne. Bifoga .pdf med innehåll eller frågor (jag har ett program som skapar dem automatiskt)</div>
-          </li>
+  camera.style.transform = `translate3d(${dx}px, ${dy}px, 0)`;
+}
 
-        </ul>
-		  
-      </section>
+function animateBackgroundToward(point){
+  if(!point) return;
 
-      <div class="footer">
-        <span>Har du problem eller kanske förslag på spel eller program som kan vara nyttiga? Maila!</span>
-        <span>© Tommie Lindgren</span>
-      </div>
-    </main>
-  </div>
+  const dx = point.x - window.innerWidth / 2;
+  const dy = point.y - window.innerHeight / 2;
 
+  const farX = Math.round(clamp(-dx * 0.245, -252, 252));
+  const farY = Math.round(clamp(-dy * 0.245, -244, 244));
+
+  const midX = Math.round(clamp(-dx * 0.300, -320, 320));
+  const midY = Math.round(clamp(-dy * 0.300, -296, 296));
+
+  const nearX = Math.round(clamp(-dx * 0.380, -410, 410));
+  const nearY = Math.round(clamp(-dy * 0.380, -370, 270));
+
+  if(bokehLayers.far) bokehLayers.far.style.transform = `translate3d(${farX}px, ${farY}px, 0)`;
+  if(bokehLayers.mid) bokehLayers.mid.style.transform = `translate3d(${midX}px, ${midY}px, 0)`;
+  if(bokehLayers.near) bokehLayers.near.style.transform = `translate3d(${nearX}px, ${nearY}px, 0)`;
+}
+
+function setFocusPoint(point){
+  focusPoint = point ? { x: point.x, y: point.y } : stageCenter();
+  animateCameraToward(focusPoint);
+  animateBackgroundToward(focusPoint);
+  setDescriptionSideFromPoint(focusPoint);
+}
+
+  function removeNodes(nodes){ nodes.forEach(n => { n.classList.remove('show'); setTimeout(() => n.remove(), 260); }); }
+
+  function setDescription(text, title = ''){
+	  if(!text){
+		descriptionBar.classList.remove('is-visible');
+		descriptionBar.innerHTML = '';
+		return;
+	  }
+
+	  descriptionBar.innerHTML = title
+  ? `<div class="descriptionTitle">${title}</div><div class="descriptionText">${text}</div>`
+  : `<div class="descriptionText">${text}</div>`;
+	  descriptionBar.classList.add('is-visible');
+	}
+
+  function clearLines(){
+  lines.innerHTML = '';
+  clearLineBadges();
+}
+function lineBetween(a, b, isNew = false){
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('x1', a.x);
+  line.setAttribute('y1', a.y);
+  line.setAttribute('x2', b.x);
+  line.setAttribute('y2', b.y);
+
+  if(isNew){
+    addLineBadge(a, b, 'Ny');
+  }
+
+  lines.appendChild(line);
+  return line;
+}
+
+
+
+  function hasNewInGame(game){ return !!game.new; }
+  function hasNewInSubcategory(subcategory){ return subcategory.games.some(hasNewInGame); }
+  function hasNewInCategory(category){ return category.subcategories.some(hasNewInSubcategory); }
+  function anyNewAnywhere(){ return data.categories.some(hasNewInCategory); }
+
+function addNewBadge(el){
+  // keep empty, or remove the function entirely if you want
+}
+
+  function attachDescriptionHandlers(el, item){
+  if(!item || !item.description) return;
+
+  const onEnter = () => {
+    setDescriptionSideFromPoint(el._pos || focusPoint);
+    setDescription(item.description, item.title);
+  };
+
+  const onLeave = () => {
+    setDescription('');
+  };
+
+  el.addEventListener('mouseenter', onEnter);
+  el.addEventListener('mouseleave', onLeave);
+  el.addEventListener('focus', onEnter);
+  el.addEventListener('blur', onLeave);
+  
+}
+  
+  function clearLineBadges(){
+  if(lineBadges) lineBadges.innerHTML = '';
+}
+
+function setDescriptionSideFromPoint(point){
+  if(!point) {
+    descriptionBar.classList.remove('is-left', 'is-right');
+    descriptionBar.classList.add('is-left');
+    return;
+  }
+
+  const cx = window.innerWidth / 2;
+  const dx = point.x - cx;
+
+  descriptionBar.classList.remove('is-left', 'is-right');
+
+  if(dx > 40){
+    // focus is to the right, so put description on the right
+    descriptionBar.classList.add('is-right');
+  } else if(dx < -40){
+    // focus is to the left, so put description on the left
+    descriptionBar.classList.add('is-left');
+  } else {
+    // roughly centered / straight down -> default to left
+    descriptionBar.classList.add('is-left');
+  }
+}
+
+function addLineBadge(a, b, text = 'New'){
+  if(!lineBadges) return;
+
+  const midX = (a.x + b.x) / 2;
+  const midY = (a.y + b.y) / 2;
+
+  const badge = document.createElement('span');
+  badge.className = 'line-badge-new';
+  badge.textContent = text;
+  badge.style.left = `${midX}px`;
+  badge.style.top = `${midY}px`;
+
+  lineBadges.appendChild(badge);
+}
+
+function resetNodeLineLinks(){
+  if(rootNode) rootNode._linkedLines = [];
+  categoryNodes.forEach(n => n._linkedLines = []);
+  subcategoryNodes.forEach(n => n._linkedLines = []);
+  gameNodes.forEach(n => n._linkedLines = []);
+}
+
+function linkLine(node, line){
+  if(!node || !line) return;
+  if(!node._linkedLines) node._linkedLines = [];
+  node._linkedLines.push(line);
+}
+
+function setNodeLineHighlight(node, on){
+  if(!node) return;
+
+  node.classList.toggle('is-highlighted', on);
+
+  if(node._linkedLines){
+    node._linkedLines.forEach(line => {
+      line.classList.toggle('is-highlighted', on);
+    });
+  }
+
+  if(node._linkedNodes){
+    node._linkedNodes.forEach(linkedNode => {
+      linkedNode.classList.toggle('is-highlighted', on);
+    });
+  }
+}
+
+
+function resetNodeLinks(){
+  if(rootNode) {
+    rootNode._linkedLines = [];
+    rootNode._linkedNodes = [];
+  }
+  categoryNodes.forEach(n => {
+    n._linkedLines = [];
+    n._linkedNodes = [];
+  });
+  subcategoryNodes.forEach(n => {
+    n._linkedLines = [];
+    n._linkedNodes = [];
+  });
+  gameNodes.forEach(n => {
+    n._linkedLines = [];
+    n._linkedNodes = [];
+  });
+}
+
+function linkNodes(a, b){
+  if(!a || !b) return;
+  if(!a._linkedNodes) a._linkedNodes = [];
+  if(!b._linkedNodes) b._linkedNodes = [];
+  a._linkedNodes.push(b);
+  b._linkedNodes.push(a);
+}
+
+function attachLineHoverHandlers(node){
+  const onEnter = () => setNodeLineHighlight(node, true);
+  const onLeave = () => setNodeLineHighlight(node, false);
+
+  node.addEventListener('mouseenter', onEnter);
+  node.addEventListener('mouseleave', onLeave);
+  node.addEventListener('focus', onEnter);
+  node.addEventListener('blur', onLeave);
+}
+
+  function createNode({ kind, title, subtitle, color, x, y, onClick, href, isNew = false, descriptionItem = null }){
+    const el = document.createElement(href ? 'a' : 'button');
+    el.className = `node ${kind}`;
+    if(color) el.dataset.color = color;
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+    if(href){
+      el.href = href; el.target = '_blank'; el.rel = 'noopener noreferrer'; el.setAttribute('aria-label', title);
+    } else {
+      el.type = 'button';
+    }
+    el.innerHTML = `<div class="inner"><div class="title">${title}</div>${subtitle ? `<div class="subtitle">${subtitle}</div>` : ''}</div>`;
+    if(isNew) addNewBadge(el);
+	el.addEventListener('click', playPlop);
+    if(onClick) el.addEventListener('click', onClick);
+    attachDescriptionHandlers(el, descriptionItem);
+    camera.appendChild(el);
+    requestAnimationFrame(() => el.classList.add('show'));
+	attachLineHoverHandlers(el);
+    return el;
+  }
+
+
+
+  function getCategoryAnchor(category){
+    const c = stageCenter();
+    const angles = spreadAngles(data.categories.length, -90, window.innerWidth < 760 ? 260 : 360);
+    const index = data.categories.findIndex(cat => cat.id === category.id);
+    return polar(c.x, c.y, categoryRadius(), angles[index]);
+  }
+
+  function renderRoot(){
+    const c = stageCenter();
+    if(rootNode) rootNode.remove();
+    rootNode = createNode({
+      kind: 'root', title: data.title, subtitle: '', x: c.x, y: c.y, isNew: anyNewAnywhere(),
+		onClick: () => {
+  const atRoot = !activeCategory && !activeSubcategory;
+
+  if(!categoryNodes.length && atRoot){
+    renderCategories();
+    updateRootSubtitle();
+    redrawLines();
+    return;
+  }
+
+  if(categoryNodes.length && atRoot){
+    removeNodes(categoryNodes);
+    removeNodes(subcategoryNodes);
+    removeNodes(gameNodes);
+    categoryNodes = [];
+    subcategoryNodes = [];
+    gameNodes = [];
+    clearLines();
+    setDescription('');
+    updateRootSubtitle();
+    redrawLines();
+    return;
+  }
+
+  activeCategory = null;
+  activeSubcategory = null;
+  removeNodes(subcategoryNodes);
+  removeNodes(gameNodes);
+  subcategoryNodes = [];
+  gameNodes = [];
+  setFocusPoint(stageCenter());
+  rerender();
+  updateRootSubtitle();
+  redrawLines();
+}
+    });
+  
+  }
+
+  function toggleCategories(){
+    if(categoryNodes.length){
+      removeNodes(categoryNodes); removeNodes(subcategoryNodes); removeNodes(gameNodes);
+      categoryNodes = []; subcategoryNodes = []; gameNodes = [];
+      activeCategory = null; activeSubcategory = null;
+      clearLines(); setDescription(''); 
+      return;
+    }
+    renderCategories();
+  }
+
+  function renderCategories(){
+    removeNodes(categoryNodes); categoryNodes = [];
+    const visible = activeCategory ? data.categories.filter(cat => cat.id === activeCategory) : data.categories;
+    visible.forEach((category) => {
+      const p = getCategoryAnchor(category);
+      const node = createNode({
+        kind: 'category', title: category.title, subtitle: category.subtitle, color: category.color, x: p.x, y: p.y,
+        isNew: hasNewInCategory(category),
+        onClick: (ev) => {
+		  ev.stopPropagation();
+		  activeCategory = category.id;
+		  activeSubcategory = null;
+		  setFocusPoint(p);
+		  rerender();
+		}
+      });
+      node._pos = p; node._category = category; categoryNodes.push(node);
+    });
+    redrawLines();
+  }
+
+  function renderSubcategories(){
+    removeNodes(subcategoryNodes); subcategoryNodes = [];
+    if(!activeCategory) return;
+    const category = data.categories.find(cat => cat.id === activeCategory);
+    const categoryNode = categoryNodes.find(n => n._category.id === activeCategory);
+    if(!category || !categoryNode) return;
+
+    const categoryPos = categoryNode._pos;
+    const angleFromRoot = Math.atan2(categoryPos.y - stageCenter().y, categoryPos.x - stageCenter().x) * 180 / Math.PI;
+    const visible = activeSubcategory ? category.subcategories.filter(sub => sub.id === activeSubcategory) : category.subcategories;
+   const spread = Math.min(180, 48 * Math.max(1, category.subcategories.length - 1));
+    const allAngles = spreadAngles(category.subcategories.length, angleFromRoot, spread);
+
+    visible.forEach((subcategory) => {
+      const index = category.subcategories.findIndex(sub => sub.id === subcategory.id);
+      const p = polar(categoryPos.x, categoryPos.y, subcategoryRadius(), allAngles[index]);
+      const node = createNode({
+        kind: 'subcategory', title: subcategory.title, subtitle: subcategory.subtitle, color: subcategory.color || category.color || '', x: p.x, y: p.y,
+        isNew: hasNewInSubcategory(subcategory),
+		onClick: (ev) => {
+		  ev.stopPropagation();
+		  activeSubcategory = subcategory.id;
+		  setFocusPoint(p);
+		  rerender();
+		}
+      });
+      node._pos = p; node._subcategory = subcategory; subcategoryNodes.push(node);
+    });
+    redrawLines();
+  }
+
+  function renderGames(){
+    removeNodes(gameNodes); gameNodes = [];
+    if(!activeCategory || !activeSubcategory) return;
+    const category = data.categories.find(cat => cat.id === activeCategory);
+    const subcategory = category?.subcategories.find(sub => sub.id === activeSubcategory);
+    const subNode = subcategoryNodes.find(n => n._subcategory.id === activeSubcategory);
+    if(!category || !subcategory || !subNode) return;
+
+    const subPos = subNode._pos;
+    const baseAngle = Math.atan2(subPos.y - stageCenter().y, subPos.x - stageCenter().x) * 180 / Math.PI;
+    const spread = Math.min(220, 40 * Math.max(1, subcategory.games.length - 1));
+    const allAngles = spreadAngles(subcategory.games.length, baseAngle, spread);
+
+    subcategory.games.forEach((game, index) => {
+      const p = polar(subPos.x, subPos.y, gameRadius(), allAngles[index]);
+      const node = createNode({
+        kind: 'game', title: game.title, subtitle: '', color: game.color || subcategory.color || category.color || '', x: p.x, y: p.y,
+        href: game.url, isNew: !!game.new, descriptionItem: game
+      });
+      node._pos = p; node._game = game; gameNodes.push(node);
+    });
+    redrawLines();
+  }
+
+function redrawLines(){
+  clearLines();
+  resetNodeLinks();
+
+  const rootPos = stageCenter();
+
+  categoryNodes.forEach(node => {
+    const line = lineBetween(rootPos, node._pos, hasNewInCategory(node._category));
+
+    linkLine(rootNode, line);
+    linkLine(node, line);
+    linkNodes(rootNode, node);
+  });
+
+  if(activeCategory){
+    const categoryNode = categoryNodes.find(n => n._category.id === activeCategory);
+
+    subcategoryNodes.forEach(node => {
+      const line = lineBetween(categoryNode._pos, node._pos, hasNewInSubcategory(node._subcategory));
+
+      linkLine(categoryNode, line);
+      linkLine(node, line);
+      linkNodes(categoryNode, node);
+    });
+
+    if(activeSubcategory){
+      const subNode = subcategoryNodes.find(n => n._subcategory.id === activeSubcategory);
+
+      gameNodes.forEach(node => {
+        const line = lineBetween(subNode._pos, node._pos, !!node._game.new);
+
+        linkLine(subNode, line);
+        linkLine(node, line);
+        linkNodes(subNode, node);
+      });
+    }
+  }
+}
+
+  function rerender(){
+    const hadCategories = categoryNodes.length > 0 || activeCategory;
+    clearLines();
+    removeNodes(categoryNodes); removeNodes(subcategoryNodes); removeNodes(gameNodes);
+    categoryNodes = []; subcategoryNodes = []; gameNodes = [];
+    renderRoot();
+    if(hadCategories){
+      renderCategories();
+      if(activeCategory) renderSubcategories();
+      if(activeCategory && activeSubcategory) renderGames();
+    }
+    if(focusPoint){ animateCameraToward(focusPoint); animateBackgroundToward(focusPoint); }
+  }
+
+  stage.addEventListener('click', (e) => {
+    if(e.target === stage || e.target === camera || e.target === lines) setDescription('');
+  });
+
+  setFocusPoint(stageCenter());
+  renderRoot();
+  // setTimeout(renderCategories, 240);
+  window.addEventListener('resize', () => { if(!focusPoint) setFocusPoint(stageCenter()); rerender(); });
+  </script>
 </body>
 </html>

@@ -229,14 +229,14 @@ window.PrickarMenuData = {
       subcategories: [
         {
           id: 'studieverktyg',
-          title: 'Studieverktyg',
+          title: 'Verktyg',
           subtitle: '',
           games: [
             {
               id: 'flashcards',
-              title: 'Flashcards',
-              url: 'https://wedg3.github.io/flashcards/lists.html',
-              description: 'Plugga inför prov med färdiga flashcardsamlingar.',
+              title: 'Kommer snart',
+              url: '',
+              description: 'Kommer snart',
               new: 0
             }
           ]
